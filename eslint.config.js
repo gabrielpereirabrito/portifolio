@@ -7,6 +7,30 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-config-prettier';
 
 /**
+ * ADR-0013, regra 1: componente nunca usa cor crua nem valor arbitrário —
+ * usa o token semântico. Sem isto, `text-[#38e8ff]` se espalha e trocar o
+ * acento do site deixa de ser mexer em uma linha. Pior: cor escrita à mão
+ * não acompanha a troca para o tema ghost.
+ *
+ * Dirigida a COR, de propósito. A regra `no-arbitrary-value` do plugin
+ * baniria também `tracking-[0.25em]` e `leading-[var(--leading-corpo)]`,
+ * que são usos legítimos — e uma regra que reclama do que é correto é uma
+ * regra que vai ser desligada.
+ *
+ * Feita à mão, e não com eslint-plugin-tailwindcss: a versão 4 do plugin
+ * insiste em ler o CSS de entrada de `src/style.css` e ignora o `settings`
+ * que aponta para o nosso caminho. Acoplar o lint à introspecção do
+ * Tailwind não vale o que ele entregaria a mais aqui.
+ */
+const CORES_ARBITRARIAS = String.raw`-\[(#|rgb|rgba|hsl|hsla|oklch|oklab|color\()`;
+
+const semCorArbitraria = {
+  selector: `Literal[value=/${CORES_ARBITRARIAS}/]`,
+  message:
+    'ADR-0013: use o token semântico (text-accent, bg-panel, border-hud) em vez de cor arbitrária. Cor escrita à mão não acompanha a troca para o tema ghost.',
+};
+
+/**
  * ESLint — ADR-0016.
  *
  * O que importa aqui não é pegar variável não usada (o TypeScript já faz).
@@ -65,6 +89,9 @@ export default tseslint.config(
       ...jsxA11y.flatConfigs.recommended.rules,
 
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+
+      // ── Protege ADR-0013, regra 1 ───────────────────────────────────
+      'no-restricted-syntax': ['error', semCorArbitraria],
 
       // ── Protege ADR-0012 ────────────────────────────────────────────
       // Dependência faltando no useGSAP recria (ou não recria) a animação
