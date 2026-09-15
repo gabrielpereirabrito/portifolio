@@ -14,6 +14,10 @@ const FichaProjeto = lazy(() =>
 const NaoMapeado = lazy(() =>
   import('@/modules/erro').then((m) => ({ default: m.NaoMapeado })),
 );
+// Vitrine do design system: rota interna, nao linkada (frente 02).
+const Vitrine = lazy(() =>
+  import('@/modules/vitrine').then((m) => ({ default: m.Vitrine })),
+);
 
 /**
  * Na troca de rota: volta ao topo e remede o scroll.
@@ -43,6 +47,7 @@ export function Rotas() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/projetos/:slug" element={<FichaProjeto />} />
+          <Route path="/_vitrine" element={<Vitrine />} />
           <Route path="*" element={<NaoMapeado />} />
         </Routes>
       </Suspense>
