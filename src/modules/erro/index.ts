@@ -1,0 +1,1 @@
+export { NaoMapeado } from './NaoMapeado';

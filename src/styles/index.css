@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+@import './fontes.css';
+@import './tokens.css';
+@import './efeitos.css';
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════════ */
+@layer base {
+  html {
+    color-scheme: dark;
+    /* Transição da troca de tema (ADR-0013). CSS puro de propósito:
+       respeita prefers-reduced-motion sozinho, sem passar pelo GSAP. */
+    transition:
+      background-color 320ms ease,
+      color 320ms ease;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Foco visível desenhado, nunca removido (ADR-0019). Um anel neon
+     combina com o tema — aqui acessibilidade e estética concordam. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Rolagem suave só para quem não pediu menos movimento. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILITÁRIOS DO PROJETO
+   ═══════════════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* Link de pular para o conteúdo — invisível até receber foco. */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--bg-panel);
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+
+  .skip-link:focus {
+    left: 0;
+  }
+}
