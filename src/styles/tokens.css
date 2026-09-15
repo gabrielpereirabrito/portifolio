@@ -29,6 +29,25 @@
   --font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+
+  /* ── Escala tipográfica ──────────────────────────────────────────
+     Os três tamanhos grandes são fluidos: crescem com a viewport em vez
+     de saltar em breakpoints. O piso do clamp é o que importa — é o que
+     o celular recebe, e é onde o link compartilhado costuma abrir.      */
+  --text-display: clamp(2.5rem, 9vw, 5.5rem);
+  --text-titulo: clamp(1.75rem, 4.5vw, 3rem);
+  --text-secao: clamp(1.25rem, 2.5vw, 1.75rem);
+
+  /* Entrelinha maior no corpo: texto claro sobre fundo escuro tende a
+     "espalhar" visualmente, e o respiro compensa. */
+  --leading-corpo: 1.7;
+
+  /* ── Curvas de animação ──────────────────────────────────────────
+     Centralizadas para que o movimento do site tenha uma assinatura só,
+     em vez de cada componente inventar a sua.                           */
+  --ease-hud: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duracao-rapida: 180ms;
+  --duracao-media: 320ms;
 }
 
 /* ── Camada semântica ─────────────────────────────────────────────

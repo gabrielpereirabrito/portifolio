@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════════════════════════
+   EFEITOS — DECISOES-TECNICAS seção 4
+
+   Isto é CSS de verdade, não utilitário Tailwind: clip-path, pseudo-
+   elementos e keyframes são o território onde a ferramenta atrapalharia
+   (ADR-0002, nota de implementação).
+
+   Fronteira com o GSAP (ADR-0012): animação contínua, decorativa e sem
+   sincronia com outra coisa fica aqui — roda no compositor, não custa JS
+   e desliga sozinha com prefers-reduced-motion. GSAP é para o que precisa
+   de orquestração ou controle imperativo.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Painel de HUD ──────────────────────────────────────────────────
+   Canto cortado em vez de arredondado: lê como interface de máquina, não
+   como card de aplicativo.                                              */
+.hud-panel {
+  --corte: 14px;
+  clip-path: polygon(
+    var(--corte) 0,
+    100% 0,
+    100% calc(100% - var(--corte)),
+    calc(100% - var(--corte)) 100%,
+    0 100%,
+    0 var(--corte)
+  );
+}
+
+/* A borda é um pseudo-elemento porque box-shadow animado força repintura
+   (ADR-0020, regra 1). Aqui ela só muda de opacidade. */
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid var(--border-hud);
+  clip-path: inherit;
+  transition: opacity var(--duracao-media) var(--ease-hud);
+}
+
+.hud-panel[data-variante='aceso']::before {
+  border-color: var(--accent);
+  opacity: 0.8;
+}
+
+/* ── 4.1 Glitch de texto ────────────────────────────────────────────
+   Duas camadas recortadas em faixas horizontais diferentes, deslocadas
+   com cores puras — a aberração cromática.
+
+   O disparo é raro de propósito: 6s de ciclo com a distorção ocupando
+   menos de 5% dele. A própria seção 4.1 observa que glitch constante
+   cansa; aqui isso virou regra, e ela também é o que mantém o efeito
+   dentro do limite de 3 piscadas por segundo do ADR-0019.             */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-texto);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--bg-base);
+  opacity: 0.9;
+}
+
+.glitch::before {
+  color: var(--accent);
+  clip-path: inset(10% 0 62% 0);
+  animation: glitch-a 6s steps(1) infinite;
+}
+
+.glitch::after {
+  color: var(--accent-alt);
+  clip-path: inset(70% 0 12% 0);
+  animation: glitch-b 6s steps(1) infinite;
+}
+
+@keyframes glitch-a {
+  0%,
+  94% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  95% {
+    transform: translate3d(-3px, 0, 0);
+    opacity: 0.9;
+  }
+  97% {
+    transform: translate3d(2px, 0, 0);
+    opacity: 0.9;
+  }
+  98%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-b {
+  0%,
+  94% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  95.5% {
+    transform: translate3d(3px, 0, 0);
+    opacity: 0.9;
+  }
+  97.5% {
+    transform: translate3d(-2px, 0, 0);
+    opacity: 0.9;
+  }
+  98.5%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+}
+
+/* ── 4.2 Scanlines / CRT ────────────────────────────────────────────
+   O efeito mais caro do projeto: cobre a viewport inteira. Por isso é
+   camada isolada (will-change + contain), anima só opacity, e o flicker
+   some em telas pequenas (ADR-0020 regra 2, ADR-0023).                */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  contain: strict;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.22) 0px,
+    rgb(0 0 0 / 0.22) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Só a partir de tablet, e só para quem não pediu menos movimento. O
+   flicker não se justifica em GPU móvel. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .scanlines {
+    will-change: opacity;
+    animation: cintilar 7s ease-in-out infinite;
+  }
+}
+
+@keyframes cintilar {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* ── Movimento reduzido: o interruptor do lado CSS ──────────────────
+   A contraparte do gsap.matchMedia (ADR-0012 regra 4). Nota importante:
+   isto DESLIGA o movimento, nunca esconde conteúdo — as camadas de
+   glitch já nascem com opacity 0 e o texto real continua visível por
+   baixo delas.                                                         */
+@media (prefers-reduced-motion: reduce) {
+  .glitch::before,
+  .glitch::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .scanlines {
+    animation: none;
+    opacity: 0.4;
+  }
+}
