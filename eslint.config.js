@@ -51,11 +51,23 @@ const semCaminhoInternoDeModulo = {
     'ADR-0009: cruze a fronteira de um módulo pelo barrel (@/modules/x), nunca por caminho interno.',
 };
 
-/** ADR-0006 + amarra 2 do ADR-0008: componente recebe dado, não busca. */
+/**
+ * ADR-0006 + amarra 2 do ADR-0008: componente recebe dado, não busca.
+ *
+ * `allowTypeImports` é a parte que importa: TIPO pode atravessar, DADO
+ * não. `import type { Project }` é o contrato — exatamente o que o
+ * ADR-0006 quer compartilhado, e some na compilação. Já
+ * `import { projetos }` é conteúdo, e é o que precisa descer por props
+ * para a troca por API não tocar em componente.
+ *
+ * Sem essa distinção a regra obrigaria a duplicar os tipos em cada
+ * módulo, o que destruiria o contrato que ela deveria proteger.
+ */
 const semImportarData = {
   group: ['@/data', '@/data/*'],
+  allowTypeImports: true,
   message:
-    'ADR-0006: o dado desce por props. Só app/ e os barrels importam de @/data — é isso que permite trocar arquivo por API sem tocar em componente.',
+    'ADR-0006: o dado desce por props (o TIPO pode ser importado). Só app/ lê @/data — é isso que permite trocar arquivo por API sem tocar em componente.',
 };
 
 /** ADR-0012: tudo passa pelo bootstrap, que registra os plugins uma vez. */
@@ -124,7 +136,10 @@ export default tseslint.config(
   {
     files: ['src/modules/**/*.{ts,tsx}', 'src/shared/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': [
+      // Desliga a regra base em favor da versão do typescript-eslint, que
+      // é a única que entende `allowTypeImports`.
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-restricted-imports': [
         'error',
         {
           paths: semGsapDireto,
@@ -147,10 +162,17 @@ export default tseslint.config(
   },
 
   // O bootstrap do GSAP é o único lugar autorizado a tocar no pacote.
+  // Precisa desligar as DUAS regras: o bloco de src/shared acima trocou a
+  // base pela do typescript-eslint, e sobrescrever só uma deixa a outra
+  // ativa.
   {
     files: ['src/shared/animation/gsap.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [semCaminhoInternoDeModulo] }],
+      'no-restricted-imports': 'off',
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [semCaminhoInternoDeModulo] },
+      ],
     },
   },
 
