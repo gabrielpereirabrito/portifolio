@@ -1,0 +1,98 @@
+/* ═══════════════════════════════════════════════════════════════════
+   TOKENS — ADR-0013
+   Três camadas, três papéis:
+     crua      → o que a cor É          (nunca usada direto em componente)
+     semântica → para que ela SERVE     (é o que o componente usa)
+     temática  → o que significa no jogo
+   Contraste de todos os tokens de texto verificado em AA. Não trocar
+   valor sem reverificar.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Camada crua ──────────────────────────────────────────────────
+   Entra no @theme do Tailwind: gera utilitários (bg-void-900) e as
+   custom properties --color-*. É estática — o tema secreto não mexe
+   aqui.                                                              */
+@theme {
+  /* O fundo não é preto puro: é azul-arroxeado muito escuro, a cor
+     de um CRT desligado. É o que faz o neon "acender" em vez de
+     apenas aparecer. */
+  --color-void-950: #07070d;
+  --color-void-900: #0c0c16;
+  --color-void-800: #171728;
+  --color-void-700: #23233a;
+
+  --color-neon-ciano: #38e8ff;
+  --color-neon-magenta: #ff5fa2;
+  --color-neon-fosforo: #b8ff3c;
+  --color-neon-ambar: #ffb627;
+
+  --font-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+}
+
+/* ── Camada semântica ─────────────────────────────────────────────
+   Custom properties comuns, NÃO dentro de @theme — é justamente por
+   serem comuns que podem ser redefinidas em runtime pelo tema ghost. */
+:root {
+  --bg-base: var(--color-void-900);
+  --bg-panel: var(--color-void-800);
+  --border-hud: var(--color-void-700);
+
+  --text-primary: #e8e8f5;
+  --text-muted: #9da0bf;
+
+  --accent: var(--color-neon-ciano);
+  --accent-alt: var(--color-neon-magenta);
+  --terminal: var(--color-neon-fosforo);
+  --danger: #ff6b6b;
+
+  /* ── Camada temática: a ficha de personagem ── */
+  --stat-hp: #ff6b6b;
+  --stat-mp: #6ba8ff;
+  --stat-xp: var(--color-neon-fosforo);
+  --stat-ouro: var(--color-neon-ambar);
+}
+
+/* ── MODO GHOST — a recompensa do Konami (ADR-0013) ───────────────
+   Não é "outra paleta": o site inteiro cai para fósforo sobre preto,
+   um terminal monocromático antigo, como se o visitante tivesse
+   descido uma camada e chegado à máquina por trás da interface.
+   Redefine SÓ a camada semântica.                                    */
+[data-theme='ghost'] {
+  --bg-base: #000000;
+  --bg-panel: #060a06;
+  --border-hud: #163a16;
+
+  --text-primary: var(--color-neon-fosforo);
+  --text-muted: #6b9e3d;
+
+  --accent: var(--color-neon-fosforo);
+  --accent-alt: var(--color-neon-fosforo);
+  --danger: var(--color-neon-ambar);
+
+  --stat-hp: var(--color-neon-fosforo);
+  --stat-mp: var(--color-neon-fosforo);
+  --stat-xp: var(--color-neon-fosforo);
+  --stat-ouro: var(--color-neon-fosforo);
+}
+
+/* ── Ponte para o Tailwind ────────────────────────────────────────
+   @theme inline não congela o valor: o utilitário resolve a var no
+   momento do uso. É isso que faz `bg-base` acompanhar a troca de
+   tema sem nenhuma classe condicional no React.                      */
+@theme inline {
+  --color-base: var(--bg-base);
+  --color-panel: var(--bg-panel);
+  --color-hud: var(--border-hud);
+  --color-primary: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-alt: var(--accent-alt);
+  --color-terminal: var(--terminal);
+  --color-danger: var(--danger);
+  --color-hp: var(--stat-hp);
+  --color-mp: var(--stat-mp);
+  --color-xp: var(--stat-xp);
+  --color-ouro: var(--stat-ouro);
+}
