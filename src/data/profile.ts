@@ -13,7 +13,7 @@ export const perfil: Profile = {
   resumeUrl: '/curriculo.pdf',
   social: {
     github: 'https://github.com/gabrielpereirabrito',
-    linkedin: 'https://www.linkedin.com/in/',
+    linkedin: 'https://www.linkedin.com/in/gabrielpereirabrito/',
     email: 'gabrielbrito.ufrrj@gmail.com',
   },
 };

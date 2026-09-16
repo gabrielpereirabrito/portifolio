@@ -35,31 +35,50 @@ export const projetos: Project[] = [
   },
   {
     id: '2',
-    slug: 'api-de-catalogo',
-    name: 'API de Catálogo',
-    difficulty: 3,
+    slug: 'commitchi',
+    name: 'Commitchi',
+    difficulty: 4,
     stats: [
-      { label: 'Node.js', icon: 'node' },
-      { label: 'PostgreSQL', icon: 'postgres' },
+      { label: 'React', icon: 'react' },
       { label: 'TypeScript', icon: 'typescript' },
+      { label: 'Git', icon: 'git' },
     ],
     description:
-      'API REST para catálogo de produtos, com busca paginada e cache de consultas frequentes.',
+      'Companion pet que reage à atividade de código do dev, gamificando consistência através de nostalgia.',
     longDescription:
-      'Serviço de catálogo com foco em consulta rápida sobre volume alto. O trabalho interessante foi o desenho dos índices e a decisão de onde valia cache e onde ele só adicionaria uma fonte de verdade a mais.',
+      'Um companion pet (estilo Tamagotchi) que reage à atividade de código do dev. Cada commit alimenta o bichinho de XP; dias sem commitar, ele fica triste/faminto. A ideia principal é gamificar a consistência de código usando o fator nostalgia de Tamagotchi, Pokémon e Digimon.',
+    links: {},
+    year: 2026,
+  },
+  {
+    id: '3',
+    slug: 'organizei',
+    name: 'Organizei',
+    difficulty: 3,
+    stats: [
+      { label: 'React', icon: 'react' },
+      { label: 'Node.js', icon: 'node' },
+      { label: 'PostgreSQL', icon: 'postgres' },
+    ],
+    description:
+      'Sistema de finanças pessoais para controle de gastos e planejamento financeiro.',
     links: {},
     year: 2025,
   },
   {
-    id: '3',
-    slug: 'painel-de-metricas',
-    name: 'Painel de Métricas',
-    difficulty: 2,
+    id: '4',
+    slug: 'asamovie',
+    name: 'Asamovie',
+    difficulty: 3,
     stats: [
-      { label: 'React', icon: 'react' },
+      { label: 'Next.js', icon: 'nextjs' },
       { label: 'TypeScript', icon: 'typescript' },
+      { label: 'CSS', icon: 'css' },
     ],
-    description: 'Dashboard de acompanhamento com gráficos e filtros salvos por usuário.',
+    description:
+      'Catálogo digital para organização de séries e filmes integrado com a API do TMDB.',
+    longDescription:
+      'Aplicação voltada para organizar listas de séries e filmes consumindo a API do TMDB, trazendo informações completas e atualizadas do mundo do entretenimento.',
     links: {},
     year: 2025,
   },

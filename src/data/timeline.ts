@@ -5,22 +5,24 @@ export const trajetoria: TimelineEntry[] = [
   {
     id: 'atual',
     role: 'Desenvolvedor Full Stack',
-    org: 'Empresa Atual',
-    start: '2024-01',
+    org: 'Contabhub',
+    start: '2026-01',
     end: 'atual',
     summary:
-      'Desenvolvimento de aplicacoes web com React e Node, do desenho da API a interface.',
+      'Desenvolvedor full stack especializado em aplicações web modernas com React, Node.js e IA, aplicando TypeScript, Zod, Express, MySQL e Docker para construir soluções escaláveis e de alta performance.',
     highlights: [
-      'Reduzi o tempo de carga da aplicacao principal',
-      'Padronizei o design system interno',
+      'Treinei e mentorei estagiários, estruturando trilhas de aprendizado e treinamentos técnicos que aceleraram a curva de aprendizado do time',
+      'Reduzi o tempo de carregamento da aplicação principal em [X]%, otimizando queries, bundling e estratégias de cache',
+      'Liderei a padronização do design system interno, aumentando a consistência visual e reduzindo o retrabalho entre times de produto',
     ],
   },
   {
     id: 'anterior',
-    role: 'Desenvolvedor Frontend',
-    org: 'Empresa Anterior',
-    start: '2022-06',
-    end: '2023-12',
-    summary: 'Interfaces responsivas e acessiveis para produtos de uso diario.',
+    role: 'Assistente de Desenvolvimento',
+    org: 'CF Contabilidade',
+    start: '2025-03',
+    end: '2025-12',
+    summary:
+      'Desenvolvimento de sistemas de informacoes e interfaces responsivas e acessiveis para produtos de uso diario. Auxiliei na orientação e treinamento dos usuarios e na manutenção dos sistemas existentes.',
   },
 ];
