@@ -40,7 +40,7 @@ export function ListaProjetos({ projetos }: ListaProjetosProps) {
   );
 
   return (
-    <section ref={container} id="projetos" className="px-6 py-24 sm:px-10">
+    <section ref={container} id="projetos" tabIndex={-1} className="px-6 py-24 sm:px-10">
       <header className="mb-10 flex flex-col gap-2">
         <h2 className="font-display text-titulo text-accent">{copy.projetos.titulo}</h2>
         <p className="font-mono text-xs tracking-[0.2em] text-muted">

@@ -42,7 +42,7 @@ function formatarMes(valor: string): string {
 
 export function Sobre({ perfil, atributos, trajetoria }: SobreProps) {
   return (
-    <section id="sobre" className="px-6 py-24 sm:px-10">
+    <section id="sobre" tabIndex={-1} className="px-6 py-24 sm:px-10">
       <h2 className="mb-10 font-display text-titulo text-accent">{copy.sobre.titulo}</h2>
 
       <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">

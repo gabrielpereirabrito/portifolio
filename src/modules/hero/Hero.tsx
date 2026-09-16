@@ -43,8 +43,14 @@ export function Hero({ perfil }: HeroProps) {
   );
 
   return (
+    // `tabIndex={-1}` nas quatro secoes: quando o rodape rola ate uma delas
+    // por JS (vindo de outra rota), e so com isto que da para levar o FOCO
+    // junto. A ancora nativa ja faz sozinha — isto iguala os dois caminhos
+    // (ADR-0019, ADR-0027).
     <section
       ref={container}
+      id="inicio"
+      tabIndex={-1}
       className="flex min-h-[90vh] flex-col justify-center gap-6 px-6 py-24 sm:px-10"
     >
       <h1
