@@ -5,3 +5,4 @@ export { TechIcon, type TechIconId } from './TechIcon';
 export { CloudImage } from './CloudImage';
 export { Glitch } from './Glitch';
 export { Scanlines } from './Scanlines';
+export { LinksSociais } from './LinksSociais';

@@ -8,9 +8,10 @@
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, useGSAP);
 
 /**
  * Interruptor global de movimento reduzido (ADR-0012 regra 4, ADR-0019
@@ -52,4 +53,4 @@ export function refreshAposFontes(): void {
     });
 }
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, ScrollToPlugin, useGSAP };

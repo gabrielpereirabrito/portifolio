@@ -38,6 +38,13 @@ const REGISTRO = {
   espada: Sword,
   escudo: Shield,
   magia: Sparkle,
+  // Novas tecnologias
+  javascript: Code,
+  nextjs: Atom,
+  mysql: Database,
+  golang: Code,
+  python: Code,
+  docker: Cloud,
 } satisfies Record<string, Icon>;
 
 export type TechIconId = keyof typeof REGISTRO;
