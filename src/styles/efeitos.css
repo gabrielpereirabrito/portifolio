@@ -187,6 +187,54 @@
   scroll-behavior: auto;
 }
 
+/* A tremida é a MESMA ideia do `.glitch` de texto (4.1) — saltos curtos em
+   `translate3d`, sem suavização — só que na escala da tela inteira em vez
+   de uma palavra. Anima o `#root` (o conteúdo da página), não o `<html>`
+   nem o `<body>`: os dois carregam os pseudo-elementos de tela cheia
+   (`position: fixed`) logo abaixo, e dar `transform` a um ancestral deles
+   viraria a referência de posicionamento desses `fixed` — o overlay
+   passaria a tremer junto e sair de registro com o viewport de verdade.
+   Tremendo só o conteúdo, o efeito lê como "a TELA sacode", com o glitch
+   por cima ficando fixo no lugar certo. */
+:root[data-rolando='true'] #root {
+  will-change: transform;
+  animation: tremor 260ms steps(1, end) infinite;
+}
+
+@keyframes tremor {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  10% {
+    transform: translate3d(-3px, 2px, 0);
+  }
+  20% {
+    transform: translate3d(4px, -3px, 0);
+  }
+  30% {
+    transform: translate3d(-5px, -1px, 0);
+  }
+  40% {
+    transform: translate3d(2px, 4px, 0);
+  }
+  50% {
+    transform: translate3d(-4px, 3px, 0);
+  }
+  60% {
+    transform: translate3d(5px, -2px, 0);
+  }
+  70% {
+    transform: translate3d(-2px, -4px, 0);
+  }
+  80% {
+    transform: translate3d(3px, 1px, 0);
+  }
+  90% {
+    transform: translate3d(-3px, -2px, 0);
+  }
+}
+
 /* Três camadas para três papéis, e só duas delas cabem no <html>: por isso
    o chiado de estática mora no ::before do <body> — outro elemento, mesmo
    interruptor (o seletor é o ancestral `:root[data-rolando]`, não importa
@@ -418,5 +466,10 @@
   :root[data-rolando='true']::after,
   :root[data-rolando='true'] body::before {
     content: none;
+  }
+
+  :root[data-rolando='true'] #root {
+    animation: none;
+    transform: none;
   }
 }
