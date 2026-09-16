@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react';
-import { GithubLogo, LinkedinLogo, Envelope } from '@phosphor-icons/react';
 import type { Profile } from '@/data/types';
+import { LinksSociais } from '@/shared/ui';
 import { copy } from '@/i18n';
 
 /**
@@ -55,7 +55,7 @@ export function Contato({ perfil }: ContatoProps) {
   }
 
   return (
-    <section id="contato" className="px-6 py-24 sm:px-10">
+    <section id="contato" tabIndex={-1} className="px-6 py-24 sm:px-10">
       <h2 className="font-display text-titulo text-accent">{copy.contato.titulo}</h2>
       <p className="mt-2 max-w-prose leading-[var(--leading-corpo)] text-muted">
         {copy.contato.subtitulo}
@@ -141,39 +141,10 @@ export function Contato({ perfil }: ContatoProps) {
           </p>
         </form>
 
-        <ul className="flex h-fit flex-col gap-4 font-mono text-sm">
-          <li>
-            <a
-              href={`mailto:${perfil.social.email}`}
-              className="flex items-center gap-3 text-accent"
-            >
-              <Envelope size={18} weight="bold" aria-hidden="true" />
-              {perfil.social.email}
-            </a>
-          </li>
-          <li>
-            <a
-              href={perfil.social.github}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex items-center gap-3 text-accent"
-            >
-              <GithubLogo size={18} weight="bold" aria-hidden="true" />
-              GitHub ↗
-            </a>
-          </li>
-          <li>
-            <a
-              href={perfil.social.linkedin}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex items-center gap-3 text-accent"
-            >
-              <LinkedinLogo size={18} weight="bold" aria-hidden="true" />
-              LinkedIn ↗
-            </a>
-          </li>
-        </ul>
+        {/* Só ícones: o rodapé logo abaixo já lista os três por extenso, e o
+            e-mail continua legível lá e na mensagem de erro do formulário —
+            que é o que o ADR-0021 exige que não se perca. */}
+        <LinksSociais social={perfil.social} variante="icones" className="h-fit" />
       </div>
     </section>
   );
