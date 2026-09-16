@@ -26,7 +26,7 @@ import { gsap } from '@/shared/animation/gsap';
  */
 
 /** Teto de segurança: a interferência some sozinha mesmo se algo travar. */
-const TETO_MS = 2000;
+const TETO_MS = 800;
 
 const ATRIBUTO = 'rolando';
 
@@ -38,14 +38,15 @@ function movimentoReduzido(): boolean {
 }
 
 /**
- * Duração pelo tamanho do salto, não fixa.
+ * Duração pelo tamanho do salto, não fixa — mas presa perto de ~0.3s.
  *
- * Tempo fixo faz o pulo curto (contato → sobre) arrastar e o longo
- * (rodapé → topo) parecer teletransporte. O `clamp` mantém a janela onde a
- * interferência tem tempo de aparecer sem virar espera.
+ * A janela é estreita de propósito: a transição precisa ser rápida o
+ * bastante para não parecer espera, e o `clamp` só existe para o pulo
+ * mais curto (contato → sobre) não parecer seco e o mais longo (rodapé →
+ * topo) não sair de perto do alvo.
  */
 function duracaoPara(distancia: number): number {
-  return gsap.utils.clamp(0.45, 1.1, distancia / 2200);
+  return gsap.utils.clamp(0.25, 0.35, distancia / 2200);
 }
 
 /**

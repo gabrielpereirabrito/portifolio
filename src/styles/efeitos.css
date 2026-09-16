@@ -163,15 +163,17 @@
    de entre páginas — o cenário que o ADR-0010 previu quando manteve a home
    rolável.
 
-   É a MESMA ideia do glitch de texto do 4.1, na escala da viewport: duas
-   camadas de cor pura escorregando em direções opostas, ciano para um lado
-   e magenta para o outro, recortadas em fatias horizontais. Aberração
-   cromática — sinal de vídeo com os canais fora de registro, não tubo de
-   TV. As scanlines ficam de fora: elas já estão sempre lá, e acelerar
-   justamente durante a transição daria o efeito errado.
+   Já foi listras deslizando (aberração cromática clássica). Agora são
+   BLOCOS: a tela inteira coberta por cacos retangulares ciano e magenta
+   que se reformulam a cada corte — outro tamanho, outra posição, a cada
+   passo — sobre um chiado de estática que roda o tempo todo da transição.
+   O efeito fica presente do início ao fim da rolagem, nunca pisca uma vez
+   só e some. Mais "sinal cortando" do que "TV fora de sintonia". As
+   scanlines ficam de fora: elas já estão sempre lá, e acelerar justamente
+   durante a transição daria o efeito errado.
 
-   As cores saem de `--accent` e `--accent-alt`, não dos tokens crus
-   (ADR-0013): no tema ghost as duas viram fósforo, e a transição fica
+   As cores dos blocos saem de `--accent` e `--accent-alt`, não dos tokens
+   crus (ADR-0013): no tema ghost as duas viram fósforo, e a transição fica
    monocromática junto com o resto do site, de graça.
 
    Quem liga e desliga é o `data-rolando` que `shared/animation/rolagem.ts`
@@ -185,70 +187,211 @@
   scroll-behavior: auto;
 }
 
+/* Três camadas para três papéis, e só duas delas cabem no <html>: por isso
+   o chiado de estática mora no ::before do <body> — outro elemento, mesmo
+   interruptor (o seletor é o ancestral `:root[data-rolando]`, não importa
+   em qual elemento a pseudo-classe nasce). */
 :root[data-rolando='true']::before,
-:root[data-rolando='true']::after {
+:root[data-rolando='true']::after,
+:root[data-rolando='true'] body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  will-change: transform, opacity;
-  /* `screen` sobre fundo escuro é o que faz a cor ACENDER em vez de
-     manchar — a mesma lógica do neon do ADR-0013. */
-  mix-blend-mode: screen;
 }
 
-/* As fatias são FINAS e esparsas — ~6% da tela cada. Aberração cromática é
-   franja; franja larga vira grade, cobre o conteúdo, e o site passa a
-   parecer quebrado em vez de interferido. Quem carrega o efeito é o
-   DESLOCAMENTO, não a área pintada.
+/* Cada pseudo-elemento é a tela TODA (`inset: 0`) coberta por um cacho de
+   blocos — várias camadas de `linear-gradient` sólido, cada uma com seu
+   próprio tamanho e posição, desenham vários retângulos espalhados sem
+   grade num `background` só. Nada aqui é sutil: os blocos somados cobrem
+   uma fatia grande da viewport a qualquer instante.
 
-   Recorte estático: só `transform` e `opacity` animam, porque máscara
-   animada em tela cheia é repintura por frame (ADR-0020, regra 1). Os dois
-   períodos são primos entre si de propósito — 52 e 41 — para os canais nunca
-   casarem e o padrão não assentar em listra regular. */
+   O que muda a cada corte do `steps(1, end)` não é só a posição — é o
+   `background` INTEIRO: outro conjunto de retângulos, de outro tamanho, em
+   outro lugar. Sem interpolação (é isso que o `steps()` garante), então o
+   navegador não tenta misturar um cacho no outro — ele troca de figurino
+   na cara. É o "vários polígonos aparecendo e sumindo" da referência,
+   sem depender de imagem nenhuma carregada de fora.
+
+   A opacidade nunca cai perto de zero: o efeito fica PRESENTE na tela do
+   início ao fim da rolagem, reformulando-se sem parar, em vez de piscar
+   uma vez e sumir. Ciano e magenta rodam em ciclos de duração diferente
+   (200ms e 170ms, propositalmente sem razão inteira entre si) para os
+   dois nunca caírem no mesmo recorte ao mesmo tempo — é isso que lê como
+   desorganizado em vez de dois flashes sincronizados. */
 :root[data-rolando='true']::before {
-  background: var(--accent);
-  mask-image: repeating-linear-gradient(to bottom, #000 0 3px, transparent 3px 52px);
-  animation: aberracao-ciano 420ms steps(3, end) infinite;
+  mix-blend-mode: screen;
+  will-change: background, opacity, transform;
+  animation: blocos-ciano 200ms steps(1, end) infinite;
 }
 
 :root[data-rolando='true']::after {
-  background: var(--accent-alt);
-  mask-image: repeating-linear-gradient(to bottom, #000 0 2px, transparent 2px 41px);
-  animation: aberracao-magenta 420ms steps(3, end) infinite;
+  mix-blend-mode: screen;
+  will-change: background, opacity, transform;
+  animation: blocos-magenta 170ms steps(1, end) infinite;
 }
 
-/* Ciano para a esquerda, magenta para a direita — fora de registro.
-   420ms com um pico de opacidade dá ~2,4 piscadas por segundo, abaixo do
-   limite de 3 do ADR-0019. Mexer aqui refaz essa conta. */
-@keyframes aberracao-ciano {
-  0% {
-    transform: translate3d(-14px, 0, 0);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translate3d(-26px, -3px, 0);
-    opacity: 0.55;
-  }
+/* Nenhum recorte aqui é um flash no sentido do ADR-0019: a opacidade fica
+   sempre entre 0,4 e 0,6 (nunca liga/desliga do zero) e o `screen` só
+   CLAREIA a cor por cima do fundo escuro — não há troca de luminância
+   grande o bastante, nem em área nem em contraste, para contar como
+   piscada. O que muda depressa é a FORMA, não o quanto a tela acende. */
+@keyframes blocos-ciano {
+  0%,
   100% {
-    transform: translate3d(-9px, 2px, 0);
-    opacity: 0.3;
+    opacity: 0.45;
+    transform: translate3d(0, 0, 0);
+    background:
+      linear-gradient(var(--accent) 0 0) 6% 4% / 22% 10% no-repeat,
+      linear-gradient(var(--accent) 0 0) 62% 8% / 16% 14% no-repeat,
+      linear-gradient(var(--accent) 0 0) 30% 30% / 10% 20% no-repeat,
+      linear-gradient(var(--accent) 0 0) 80% 35% / 14% 9% no-repeat,
+      linear-gradient(var(--accent) 0 0) 10% 60% / 26% 8% no-repeat,
+      linear-gradient(var(--accent) 0 0) 55% 65% / 9% 18% no-repeat,
+      linear-gradient(var(--accent) 0 0) 85% 78% / 18% 10% no-repeat;
+  }
+  20% {
+    opacity: 0.55;
+    transform: translate3d(-10px, 4px, 0);
+    background:
+      linear-gradient(var(--accent) 0 0) 20% 2% / 14% 16% no-repeat,
+      linear-gradient(var(--accent) 0 0) 70% 15% / 20% 8% no-repeat,
+      linear-gradient(var(--accent) 0 0) 4% 40% / 12% 22% no-repeat,
+      linear-gradient(var(--accent) 0 0) 45% 42% / 24% 9% no-repeat,
+      linear-gradient(var(--accent) 0 0) 85% 50% / 10% 16% no-repeat,
+      linear-gradient(var(--accent) 0 0) 25% 72% / 18% 10% no-repeat,
+      linear-gradient(var(--accent) 0 0) 60% 85% / 14% 12% no-repeat;
+  }
+  40% {
+    opacity: 0.4;
+    transform: translate3d(8px, -6px, 0);
+    background:
+      linear-gradient(var(--accent) 0 0) 2% 18% / 18% 9% no-repeat,
+      linear-gradient(var(--accent) 0 0) 38% 5% / 10% 20% no-repeat,
+      linear-gradient(var(--accent) 0 0) 68% 28% / 22% 8% no-repeat,
+      linear-gradient(var(--accent) 0 0) 15% 48% / 9% 18% no-repeat,
+      linear-gradient(var(--accent) 0 0) 90% 20% / 8% 24% no-repeat,
+      linear-gradient(var(--accent) 0 0) 50% 60% / 20% 10% no-repeat,
+      linear-gradient(var(--accent) 0 0) 20% 88% / 16% 8% no-repeat;
+  }
+  60% {
+    opacity: 0.58;
+    transform: translate3d(-6px, -8px, 0);
+    background:
+      linear-gradient(var(--accent) 0 0) 10% 8% / 16% 12% no-repeat,
+      linear-gradient(var(--accent) 0 0) 55% 3% / 10% 22% no-repeat,
+      linear-gradient(var(--accent) 0 0) 80% 18% / 18% 9% no-repeat,
+      linear-gradient(var(--accent) 0 0) 30% 35% / 22% 8% no-repeat,
+      linear-gradient(var(--accent) 0 0) 5% 55% / 10% 20% no-repeat,
+      linear-gradient(var(--accent) 0 0) 65% 55% / 14% 14% no-repeat,
+      linear-gradient(var(--accent) 0 0) 40% 82% / 24% 9% no-repeat;
+  }
+  80% {
+    opacity: 0.42;
+    transform: translate3d(12px, 6px, 0);
+    background:
+      linear-gradient(var(--accent) 0 0) 32% 10% / 20% 8% no-repeat,
+      linear-gradient(var(--accent) 0 0) 4% 4% / 8% 24% no-repeat,
+      linear-gradient(var(--accent) 0 0) 72% 40% / 16% 10% no-repeat,
+      linear-gradient(var(--accent) 0 0) 48% 30% / 10% 18% no-repeat,
+      linear-gradient(var(--accent) 0 0) 90% 65% / 9% 20% no-repeat,
+      linear-gradient(var(--accent) 0 0) 15% 75% / 22% 9% no-repeat,
+      linear-gradient(var(--accent) 0 0) 60% 88% / 14% 8% no-repeat;
   }
 }
 
-@keyframes aberracao-magenta {
-  0% {
-    transform: translate3d(14px, 0, 0);
-    opacity: 0.3;
+@keyframes blocos-magenta {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: translate3d(0, 0, 0);
+    background:
+      linear-gradient(var(--accent-alt) 0 0) 15% 6% / 12% 9% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 55% 2% / 22% 14% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 4% 35% / 18% 8% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 40% 40% / 8% 20% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 75% 45% / 20% 10% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 20% 68% / 10% 18% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 65% 80% / 24% 9% no-repeat;
+  }
+  25% {
+    opacity: 0.55;
+    transform: translate3d(9px, -5px, 0);
+    background:
+      linear-gradient(var(--accent-alt) 0 0) 8% 2% / 20% 10% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 45% 12% / 10% 20% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 78% 8% / 16% 8% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 25% 42% / 24% 9% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 62% 38% / 9% 18% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 5% 72% / 14% 12% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 85% 62% / 10% 22% no-repeat;
   }
   50% {
-    transform: translate3d(26px, 3px, 0);
-    opacity: 0.55;
+    opacity: 0.38;
+    transform: translate3d(-11px, 7px, 0);
+    background:
+      linear-gradient(var(--accent-alt) 0 0) 30% 4% / 9% 22% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 65% 10% / 20% 9% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 2% 30% / 12% 16% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 48% 25% / 22% 8% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 88% 40% / 8% 20% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 35% 68% / 18% 10% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 68% 85% / 14% 8% no-repeat;
+  }
+  75% {
+    opacity: 0.6;
+    transform: translate3d(6px, 10px, 0);
+    background:
+      linear-gradient(var(--accent-alt) 0 0) 5% 12% / 16% 9% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 42% 5% / 10% 24% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 72% 22% / 18% 8% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 18% 45% / 9% 20% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 55% 50% / 22% 9% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 90% 68% / 8% 18% no-repeat,
+      linear-gradient(var(--accent-alt) 0 0) 28% 82% / 20% 8% no-repeat;
+  }
+}
+
+/* ── Chiado de estática ──────────────────────────────────────────────
+   O grão vem de um filtro `feTurbulence` num SVG embutido como data-URI —
+   textura de ruído de verdade, gerada uma vez, sem PNG nenhum para
+   carregar. Ela cobre a tela em blend `overlay`: sobre o fundo escuro do
+   site isso lê como interferência de sinal, não como filtro instagram.
+
+   Exceção deliberada à regra do ADR-0020 (só transform/opacity animam):
+   aqui quem se move é `background-position`, porque é uma textura pequena
+   e repetida (90px) sendo arrastada, não a imagem inteira sendo
+   recalculada — o custo é o de mover um ladrilho, não repintar a tela. A
+   opacidade fica FIXA de propósito: um grão fino não conta como piscada
+   (não é uma mudança de luminância em área grande), então ele pode correr
+   mais rápido que os blocos sem reabrir a conta do ADR-0019 — é o "chiado
+   de fundo" contínuo por trás das rajadas coloridas, não outro flash. */
+:root[data-rolando='true'] body::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 90px 90px;
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+  will-change: background-position;
+  animation: estatica 80ms steps(1, end) infinite;
+}
+
+@keyframes estatica {
+  0% {
+    background-position: 0 0;
+  }
+  25% {
+    background-position: 33px -17px;
+  }
+  50% {
+    background-position: -21px 29px;
+  }
+  75% {
+    background-position: 47px 11px;
   }
   100% {
-    transform: translate3d(9px, -2px, 0);
-    opacity: 0.3;
+    background-position: -13px -31px;
   }
 }
 
@@ -272,7 +415,8 @@
   /* Cinto e suspensório: `rolagem.ts` nem acende o atributo quando a
      preferência é reduzir. Se um dia acender, aqui ele não vale nada. */
   :root[data-rolando='true']::before,
-  :root[data-rolando='true']::after {
+  :root[data-rolando='true']::after,
+  :root[data-rolando='true'] body::before {
     content: none;
   }
 }
