@@ -50,4 +50,21 @@ export const copy = {
     campoObrigatorio: 'Preencha este campo.',
     emailInvalido: 'E-mail parece incompleto.',
   },
+  /**
+   * Rodape — ADR-0027.
+   *
+   * So o que NAO existe em outro lugar. Os rotulos das secoes saem de
+   * `projetos.titulo`, `sobre.titulo` e `contato.titulo`, e o curriculo de
+   * `sobre.curriculo`: assim o link do rodape nunca sai de sincronia com o
+   * <h2> da secao para onde ele aponta. `inicio` e o unico novo, porque o
+   * hero nao tem titulo escrito.
+   */
+  rodape: {
+    navegacao: 'Navegacao',
+    redes: 'Redes',
+    inicio: 'Inicio',
+    voltarAoTopo: 'voltar ao topo',
+    novaAba: 'abre em nova aba',
+    direitos: 'Todos os direitos reservados.',
+  },
 } as const;
