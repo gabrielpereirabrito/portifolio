@@ -158,6 +158,100 @@
   }
 }
 
+/* ── 4.4 Transição entre seções ──────────────────────────────
+   A transição de "hackeamento" da seção 4.4, aplicada entre SEÇÕES em vez
+   de entre páginas — o cenário que o ADR-0010 previu quando manteve a home
+   rolável.
+
+   É a MESMA ideia do glitch de texto do 4.1, na escala da viewport: duas
+   camadas de cor pura escorregando em direções opostas, ciano para um lado
+   e magenta para o outro, recortadas em fatias horizontais. Aberração
+   cromática — sinal de vídeo com os canais fora de registro, não tubo de
+   TV. As scanlines ficam de fora: elas já estão sempre lá, e acelerar
+   justamente durante a transição daria o efeito errado.
+
+   As cores saem de `--accent` e `--accent-alt`, não dos tokens crus
+   (ADR-0013): no tema ghost as duas viram fósforo, e a transição fica
+   monocromática junto com o resto do site, de graça.
+
+   Quem liga e desliga é o `data-rolando` que `shared/animation/rolagem.ts`
+   põe no <html> enquanto o tween corre. O JS não anima um pixel daqui: ele
+   só acende o interruptor, e essa é a fronteira do ADR-0012.              */
+
+/* O smooth nativo e o GSAP disputam o MESMO scroll, e o resultado é uma
+   rolagem que gagueja ou pára no meio. Enquanto o tween manda, o nativo
+   sai de cena. */
+:root[data-rolando='true'] {
+  scroll-behavior: auto;
+}
+
+:root[data-rolando='true']::before,
+:root[data-rolando='true']::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  will-change: transform, opacity;
+  /* `screen` sobre fundo escuro é o que faz a cor ACENDER em vez de
+     manchar — a mesma lógica do neon do ADR-0013. */
+  mix-blend-mode: screen;
+}
+
+/* As fatias são FINAS e esparsas — ~6% da tela cada. Aberração cromática é
+   franja; franja larga vira grade, cobre o conteúdo, e o site passa a
+   parecer quebrado em vez de interferido. Quem carrega o efeito é o
+   DESLOCAMENTO, não a área pintada.
+
+   Recorte estático: só `transform` e `opacity` animam, porque máscara
+   animada em tela cheia é repintura por frame (ADR-0020, regra 1). Os dois
+   períodos são primos entre si de propósito — 52 e 41 — para os canais nunca
+   casarem e o padrão não assentar em listra regular. */
+:root[data-rolando='true']::before {
+  background: var(--accent);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 3px, transparent 3px 52px);
+  animation: aberracao-ciano 420ms steps(3, end) infinite;
+}
+
+:root[data-rolando='true']::after {
+  background: var(--accent-alt);
+  mask-image: repeating-linear-gradient(to bottom, #000 0 2px, transparent 2px 41px);
+  animation: aberracao-magenta 420ms steps(3, end) infinite;
+}
+
+/* Ciano para a esquerda, magenta para a direita — fora de registro.
+   420ms com um pico de opacidade dá ~2,4 piscadas por segundo, abaixo do
+   limite de 3 do ADR-0019. Mexer aqui refaz essa conta. */
+@keyframes aberracao-ciano {
+  0% {
+    transform: translate3d(-14px, 0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate3d(-26px, -3px, 0);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(-9px, 2px, 0);
+    opacity: 0.3;
+  }
+}
+
+@keyframes aberracao-magenta {
+  0% {
+    transform: translate3d(14px, 0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate3d(26px, 3px, 0);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(9px, -2px, 0);
+    opacity: 0.3;
+  }
+}
+
 /* ── Movimento reduzido: o interruptor do lado CSS ──────────────────
    A contraparte do gsap.matchMedia (ADR-0012 regra 4). Nota importante:
    isto DESLIGA o movimento, nunca esconde conteúdo — as camadas de
@@ -173,5 +267,12 @@
   .scanlines {
     animation: none;
     opacity: 0.4;
+  }
+
+  /* Cinto e suspensório: `rolagem.ts` nem acende o atributo quando a
+     preferência é reduzir. Se um dia acender, aqui ele não vale nada. */
+  :root[data-rolando='true']::before,
+  :root[data-rolando='true']::after {
+    content: none;
   }
 }
