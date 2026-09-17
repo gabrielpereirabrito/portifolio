@@ -70,7 +70,16 @@ const semImportarData = {
     'ADR-0006: o dado desce por props (o TIPO pode ser importado). Só app/ lê @/data — é isso que permite trocar arquivo por API sem tocar em componente.',
 };
 
-/** ADR-0012: tudo passa pelo bootstrap, que registra os plugins uma vez. */
+/**
+ * ADR-0012 e ADR-0029: animação tem dois bootstraps, e nenhum pacote é
+ * importado direto.
+ *
+ * O do GSAP existe para os plugins serem registrados uma vez só. O da
+ * Motion existe por outro motivo — é onde moram as curvas e durações dos
+ * tokens e o `useReducedMotion`. Import direto pula os dois, e o sintoma
+ * é sempre tardio: um componente com a própria curva, ou uma animação que
+ * ignora movimento reduzido.
+ */
 const semGsapDireto = [
   {
     name: 'gsap',
@@ -80,6 +89,20 @@ const semGsapDireto = [
   { name: 'gsap/ScrollTrigger', message: 'ADR-0012: importe de @/shared/animation/gsap.' },
   { name: '@gsap/react', message: 'ADR-0012: importe de @/shared/animation/gsap.' },
 ];
+
+/** ADR-0029: a Motion entra pelo mesmo portão. */
+const semMotionDireto = [
+  {
+    name: 'motion',
+    message:
+      'ADR-0029: importe de @/shared/animation/motion — é lá que moram as curvas dos tokens e o useReducedMotion.',
+  },
+  { name: 'motion/react', message: 'ADR-0029: importe de @/shared/animation/motion.' },
+  { name: 'framer-motion', message: 'ADR-0029: importe de @/shared/animation/motion.' },
+];
+
+/** Os dois bootstraps, na forma que as duas regras esperam. */
+const semAnimacaoDireta = [...semGsapDireto, ...semMotionDireto];
 
 export default tseslint.config(
   { ignores: ['dist', 'docs', 'node_modules'] },
@@ -126,7 +149,7 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: semGsapDireto, patterns: [semCaminhoInternoDeModulo] },
+        { paths: semAnimacaoDireta, patterns: [semCaminhoInternoDeModulo] },
       ],
     },
   },
@@ -142,7 +165,7 @@ export default tseslint.config(
       '@typescript-eslint/no-restricted-imports': [
         'error',
         {
-          paths: semGsapDireto,
+          paths: semAnimacaoDireta,
           patterns: [semCaminhoInternoDeModulo, semImportarData],
         },
       ],
@@ -156,17 +179,23 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: semGsapDireto, patterns: [semCaminhoInternoDeModulo] },
+        { paths: semAnimacaoDireta, patterns: [semCaminhoInternoDeModulo] },
       ],
     },
   },
 
-  // O bootstrap do GSAP é o único lugar autorizado a tocar no pacote.
-  // Precisa desligar as DUAS regras: o bloco de src/shared acima trocou a
-  // base pela do typescript-eslint, e sobrescrever só uma deixa a outra
-  // ativa.
+  // Os dois bootstraps de animação são os únicos lugares autorizados a
+  // tocar nos pacotes (ADR-0012, ADR-0029). Precisa desligar as DUAS
+  // regras: o bloco de src/shared acima trocou a base pela do
+  // typescript-eslint, e sobrescrever só uma deixa a outra ativa.
   {
-    files: ['src/shared/animation/gsap.ts'],
+    files: [
+      'src/shared/animation/gsap.ts',
+      'src/shared/animation/motion.ts',
+      // O pacote de recursos é parte do bootstrap da Motion: ele existe
+      // justamente para ser o alvo do import() dinâmico (ADR-0029).
+      'src/shared/animation/motionFeatures.ts',
+    ],
     rules: {
       'no-restricted-imports': 'off',
       '@typescript-eslint/no-restricted-imports': [
