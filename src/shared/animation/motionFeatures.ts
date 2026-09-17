@@ -7,11 +7,16 @@
  * direto, o corte não aconteceria — o chunk viria com a biblioteca
  * inteira dentro.
  *
- * `domAnimation` cobre o que o projeto usa (opacity, transform,
- * variantes, saída). O irmão maior, `domMax`, acrescenta layout
- * animations e drag, que ninguém aqui pede e custam a maior parte do
- * peso.
+ * `domMax` e não `domAnimation`: a diferença entre os dois é justamente
+ * a **layout animation**, e ela é o que anima a viagem do terminal entre
+ * o formato de canto e o expandido — o mesmo nó mudando de tamanho e de
+ * lugar, com a Motion interpolando a caixa. Sem ela, os dois formatos
+ * trocariam em um quadro.
+ *
+ * O custo fica onde não dói: este módulo inteiro é carregado sob demanda,
+ * então a diferença entre os dois pacotes não toca o bundle inicial —
+ * ela aparece no pedaço que chega depois do primeiro clique.
  */
-import { domAnimation } from 'motion/react';
+import { domMax } from 'motion/react';
 
-export default domAnimation;
+export default domMax;

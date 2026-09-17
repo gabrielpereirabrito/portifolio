@@ -70,6 +70,8 @@ export const copy = {
       abrir: 'abrir terminal',
       titulo: 'terminal',
       fechar: 'fechar terminal',
+      expandir: 'expandir para a tela toda',
+      recolher: 'recolher para o canto',
       rotuloEntrada: 'digite um comando',
       saida: 'saída do terminal',
       boasVindas: 'portfolio-os v1.0 — digite help para ver o que existe.',
