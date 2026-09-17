@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { Attribute, Profile } from '@/data/types';
 import type { EasterEgg } from '@/data/easterEggs';
+import { LazyMotion, carregarRecursos } from '@/shared/animation/motion';
 import { useEasterEggs } from './store';
 import { observarKonami } from './konami';
 import { observarGestoKonami } from './gesto';
@@ -79,9 +80,15 @@ export function EasterEggs({ perfil, atributos, catalogo }: EasterEggsProps) {
   }, [tema]);
 
   return (
-    <>
+    // Um `<LazyMotion>` para os dois, montado aqui e em nenhum outro
+    // lugar: ele é quem resolve o que os `motion.*` sabem fazer, e o
+    // pedaço que ele carrega fica fora do bundle inicial (ADR-0029,
+    // ADR-0020). `strict` transforma em erro o uso da API completa —
+    // que voltaria a arrastar os 44 KB para dentro do inicial sem que
+    // ninguém percebesse.
+    <LazyMotion features={carregarRecursos} strict>
       <ToastConquista catalogo={catalogo} />
       <Terminal perfil={perfil} atributos={atributos} catalogo={catalogo} />
-    </>
+    </LazyMotion>
   );
 }
