@@ -40,7 +40,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.erro) return this.props.children;
-    if (this.props.fallback) return this.props.fallback;
+
+    // `!== undefined` e não um teste de verdade: `fallback={null}` é um
+    // pedido legítimo de "quando isto falhar, não mostre nada" — é o que
+    // uma camada decorativa quer (os easter eggs). Com o teste ingênuo,
+    // `null` cairia na tela de erro de página inteira e um toast quebrado
+    // apagaria o site.
+    if (this.props.fallback !== undefined) return this.props.fallback;
 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
