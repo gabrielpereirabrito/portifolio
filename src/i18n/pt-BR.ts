@@ -16,8 +16,18 @@ export const copy = {
   nav: {
     pularParaConteudo: 'pular para o conteudo',
   },
+  /**
+   * Hero — o retrato que vira carta (ADR-0030).
+   *
+   * `anunciarCarta` e `anunciarRetrato` sao o que a regiao viva fala na
+   * troca: quem nao ve a imagem precisa saber que ela virou, e no que ela
+   * virou (ADR-0019).
+   */
   hero: {
     rolar: 'role para explorar',
+    virarCarta: 'ver a carta de personagem',
+    anunciarCarta: 'Carta virada: {classe}, nivel {nivel} de 5.',
+    anunciarRetrato: 'De volta a foto.',
   },
   projetos: {
     titulo: 'Projetos',

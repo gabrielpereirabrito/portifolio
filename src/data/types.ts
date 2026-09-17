@@ -67,12 +67,39 @@ export interface TimelineEntry {
   highlights?: string[];
 }
 
+/**
+ * "Carta de protagonista" — o VERSO do retrato do hero (ADR-0030).
+ *
+ * A frente é sempre a mesma: `Profile.avatar`, a foto real. O que muda a
+ * cada virada é isto aqui — a persona, com a foto estilizada e a piada de
+ * RPG. Daí serem entidades separadas: a foto real é uma só e identifica a
+ * pessoa; as cartas são várias e rodam.
+ *
+ * Não é um campo de `Profile` de propósito: `Profile` é singular por
+ * decisão do ADR-0008, e um array de entidades com dados próprios dentro
+ * dele é o começo do modelo que aquele ADR mandou não construir.
+ */
+export interface Retrato {
+  id: string;
+  /** publicId do Cloudinary, em `portfolio/perfil/` (ADR-0014). */
+  publicId: string;
+  /** Descreve a FOTO desta carta. A frente tem o seu próprio. */
+  alt: string;
+  /** A piada de RPG: "Arquiteto de Sistemas", "Domador de Legado"… */
+  classe: string;
+  /** Mesma escala 1–5 do site inteiro — ver a decisão 2 acima. */
+  nivel: Nivel;
+}
+
 export interface Profile {
   name: string;
   title: string;
   bio: string;
   location?: string;
-  /** publicId do Cloudinary. */
+  /**
+   * publicId do Cloudinary — a foto real, e a FRENTE do retrato do hero
+   * (ADR-0030). É para ela que a carta sempre volta.
+   */
   avatar?: string;
   /** PDF em public/, com nome estável. */
   resumeUrl: string;
