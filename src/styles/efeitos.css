@@ -443,6 +443,31 @@
   }
 }
 
+/* ── Toast de conquista ─────────────────────────────────────────────
+   A entrada do achievement — DECISOES-TECNICAS seção 5.
+
+   Fica no CSS e não no GSAP pela mesma fronteira do resto do arquivo
+   (ADR-0012): é decorativa, dura menos de meio segundo e não se
+   sincroniza com nada. Anima só `transform` e `opacity`, as duas
+   propriedades que o ADR-0020 (regra 1) permite.
+
+   Uma passada só, sem repetição: não é piscada no sentido do ADR-0019 —
+   o painel aparece e fica.                                              */
+.toast-conquista {
+  animation: conquista-entra 260ms var(--ease-hud) both;
+}
+
+@keyframes conquista-entra {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 /* ── Movimento reduzido: o interruptor do lado CSS ──────────────────
    A contraparte do gsap.matchMedia (ADR-0012 regra 4). Nota importante:
    isto DESLIGA o movimento, nunca esconde conteúdo — as camadas de
@@ -471,5 +496,12 @@
   :root[data-rolando='true'] #root {
     animation: none;
     transform: none;
+  }
+
+  /* Estado final, nunca invisível: sem o `both` da animação o toast
+     ficaria em opacity 0 para sempre — a falha do "acessível e vazio"
+     que o ADR-0019 (compromisso 2) chama de clássica. */
+  .toast-conquista {
+    animation: none;
   }
 }
