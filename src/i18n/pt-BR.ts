@@ -51,6 +51,36 @@ export const copy = {
     emailInvalido: 'E-mail parece incompleto.',
   },
   /**
+   * Easter eggs — DECISOES-TECNICAS seção 5, ADR-0019 e ADR-0023.
+   *
+   * O texto do terminal mora aqui junto com o resto da interface; o do
+   * CATÁLOGO (título e recompensa de cada egg) mora em `data/easterEggs`.
+   * A fronteira do ADR-0006 separa os dois: rótulo de botão e mensagem de
+   * erro são UI, a lista de conquistas é conteúdo.
+   *
+   * As mensagens usam `{placeholder}` em vez de concatenação no meio do
+   * código — assim dá para reescrever a voz do terminal inteiro lendo
+   * este bloco.
+   */
+  eggs: {
+    conquista: 'CONQUISTA DESBLOQUEADA',
+    fecharToast: 'dispensar',
+
+    terminal: {
+      abrir: 'abrir terminal',
+      titulo: 'terminal',
+      fechar: 'fechar terminal',
+      rotuloEntrada: 'digite um comando',
+      saida: 'saída do terminal',
+      boasVindas: 'portfolio-os v1.0 — digite help para ver o que existe.',
+      ajuda: 'comandos disponíveis:',
+      desconhecido: 'comando não encontrado: {comando} — digite help.',
+      contratando: 'privilégios concedidos. canal de contato aberto:',
+      semConquistas: 'nenhuma conquista registrada ainda.',
+    },
+  },
+
+  /**
    * Rodape — ADR-0027.
    *
    * So o que NAO existe em outro lugar. Os rotulos das secoes saem de
