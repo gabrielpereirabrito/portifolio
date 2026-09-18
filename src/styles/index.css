@@ -36,6 +36,20 @@
     font-family: var(--font-mono);
   }
 
+  /* O Tailwind 4 mudou o reset: `<button>` passou a herdar
+     `cursor: default` do navegador, em vez do `cursor: pointer` que a v3
+     aplicava. O efeito é um site inteiro onde nada PARECE clicável —
+     apareceu primeiro na carta do hero, mas valia para todo botão: os do
+     terminal, o de dispensar o toast, os atalhos de comando.
+
+     Corrigido aqui, na base, e não classe a classe: é comportamento
+     padrão de botão, não decisão de componente. `:disabled` fica de
+     fora — ali o cursor de seta é a informação certa. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
   /* Foco visível desenhado, nunca removido (ADR-0019). Um anel neon
      combina com o tema — aqui acessibilidade e estética concordam. */
   :focus-visible {
