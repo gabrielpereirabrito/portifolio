@@ -11,6 +11,7 @@ import { perfil } from '@/data/profile';
 import { projetos } from '@/data/projects';
 import { atributos } from '@/data/attributes';
 import { trajetoria } from '@/data/timeline';
+import { retratos } from '@/data/retratos';
 
 /**
  * Rotas — ADR-0010 (híbrido: home rolável + rota de detalhe por projeto).
@@ -124,6 +125,7 @@ export function Rotas() {
                 projetos={projetos}
                 atributos={atributos}
                 trajetoria={trajetoria}
+                retratos={retratos}
               />
             }
           />

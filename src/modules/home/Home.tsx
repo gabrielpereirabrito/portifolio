@@ -2,7 +2,7 @@ import { Hero } from '@/modules/hero';
 import { ListaProjetos } from '@/modules/projetos';
 import { Sobre } from '@/modules/sobre';
 import { Contato } from '@/modules/contato';
-import type { Attribute, Profile, Project, TimelineEntry } from '@/data/types';
+import type { Attribute, Profile, Project, Retrato, TimelineEntry } from '@/data/types';
 import { copy } from '@/i18n';
 
 /**
@@ -18,9 +18,10 @@ interface HomeProps {
   projetos: Project[];
   atributos: Attribute[];
   trajetoria: TimelineEntry[];
+  retratos: Retrato[];
 }
 
-export function Home({ perfil, projetos, atributos, trajetoria }: HomeProps) {
+export function Home({ perfil, projetos, atributos, trajetoria, retratos }: HomeProps) {
   return (
     <>
       <a href="#conteudo" className="skip-link">
@@ -28,7 +29,7 @@ export function Home({ perfil, projetos, atributos, trajetoria }: HomeProps) {
       </a>
 
       <main id="conteudo">
-        <Hero perfil={perfil} />
+        <Hero perfil={perfil} retratos={retratos} />
         <ListaProjetos projetos={projetos} />
         <Sobre perfil={perfil} atributos={atributos} trajetoria={trajetoria} />
         <Contato perfil={perfil} />
