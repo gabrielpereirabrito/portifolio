@@ -47,7 +47,7 @@ export const projetos: Project[] = [
       'Companion pet que reage à atividade de código do dev, gamificando consistência através de nostalgia.',
     longDescription:
       'Um companion pet (estilo Tamagotchi) que reage à atividade de código do dev. Cada commit alimenta o bichinho de XP; dias sem commitar, ele fica triste/faminto. A ideia principal é gamificar a consistência de código usando o fator nostalgia de Tamagotchi, Pokémon e Digimon.',
-    links: {},
+    links: { repo: 'https://github.com/gabrielpereirabrito/commitchi-game' },
     year: 2026,
   },
   {
@@ -62,8 +62,30 @@ export const projetos: Project[] = [
     ],
     description:
       'Sistema de finanças pessoais para controle de gastos e planejamento financeiro.',
-    links: {},
+    links: { repo: 'https://github.com/gabrielpereirabrito/organizei' },
     year: 2025,
+  },
+  {
+    id: '5',
+    slug: 'andie-e-gabriel',
+    name: 'Andie e Gabriel',
+    // Baixa de propósito, e sincera: o desafio aqui não foi técnico
+    // (ADR-0007 mede desafio, não tempo nem carinho).
+    difficulty: 2,
+    stats: [
+      { label: 'Next.js', icon: 'nextjs' },
+      { label: 'TypeScript', icon: 'typescript' },
+      { label: 'CSS', icon: 'css' },
+    ],
+    description:
+      'Presente de Dia dos Namorados: um site com o tempo que estamos juntos contado ao vivo, até em luas cheias.',
+    longDescription:
+      'Um site feito de presente. A contagem do tempo juntos corre ao vivo — anos, meses, dias, horas, minutos e segundos — e vira também o número de luas cheias que passaram desde o primeiro dia, uma a cada 29,5 dias. Abaixo, a linha do tempo dos momentos que valeram a pena registrar. O desafio não foi a stack: foi fazer um contador que corre sem travar a página e um texto que não envergonha ninguém dez anos depois.',
+    links: {
+      demo: 'https://andie-e-brito.vercel.app',
+      repo: 'https://github.com/gabrielpereirabrito/dia-dos-namorados',
+    },
+    year: 2026,
   },
   {
     id: '4',
