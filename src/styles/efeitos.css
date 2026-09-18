@@ -443,6 +443,32 @@
   }
 }
 
+/* ── Fundo do hero ──────────────────────────────────────────────────
+   O piso do efeito da seção 4.6 — ADR-0031.
+
+   Este gradiente está SEMPRE na tela: enquanto a malha de partículas
+   carrega, e para sempre em quem não passa na guarda de capacidade (todo
+   celular, toda tela estreita, todo mundo com movimento reduzido). Ou
+   seja: para a maior parte das visitas, ele não é fallback, é o fundo.
+
+   Por isso não é cinza de espera — é a luz que faz o hero parecer um
+   painel aceso, e sai dos tokens semânticos, então acompanha o tema ghost
+   junto com o resto (ADR-0013). Estático de propósito: nada aqui anima,
+   nem em GPU móvel.                                                    */
+.fundo-hero {
+  background:
+    radial-gradient(
+      60% 55% at 22% 28%,
+      color-mix(in oklab, var(--accent) 12%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 50% at 82% 72%,
+      color-mix(in oklab, var(--accent-alt) 9%, transparent) 0%,
+      transparent 70%
+    );
+}
+
 /* ── Movimento reduzido: o interruptor do lado CSS ──────────────────
    A contraparte do gsap.matchMedia (ADR-0012 regra 4). Nota importante:
    isto DESLIGA o movimento, nunca esconde conteúdo — as camadas de

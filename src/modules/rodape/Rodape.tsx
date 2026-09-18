@@ -109,7 +109,7 @@ export function Rodape({ perfil }: RodapeProps) {
             <LinksSociais social={perfil.social} orientacao="coluna" />
             <a
               href={perfil.resumeUrl}
-              download
+              download={perfil.resumeFileName ?? true}
               className="mt-1 flex items-center gap-3 font-mono text-sm text-accent"
             >
               <DownloadSimple size={18} weight="bold" aria-hidden="true" />

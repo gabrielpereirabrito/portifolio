@@ -101,7 +101,22 @@ const semMotionDireto = [
   { name: 'framer-motion', message: 'ADR-0029: importe de @/shared/animation/motion.' },
 ];
 
-/** Os dois bootstraps, na forma que as duas regras esperam. */
+/**
+ * ADR-0031: o tsParticles entra pelo terceiro portão.
+ *
+ * Aqui o import direto custa mais do que nos outros dois: o bootstrap é
+ * quem carrega a biblioteca DEPOIS da guarda de capacidade, e um import
+ * estático em qualquer componente traz os ~16 KB para o bundle inicial de
+ * todo mundo — inclusive de quem, pela guarda, nunca deveria baixá-los.
+ * Por padrão de nome, porque a família tem vários pacotes.
+ */
+const semParticulasDiretas = {
+  group: ['@tsparticles/*'],
+  message:
+    'ADR-0031: importe de @/shared/animation/particulas — o import direto traz a lib para o bundle inicial e fura a guarda de capacidade.',
+};
+
+/** Os três bootstraps, na forma que as duas regras esperam. */
 const semAnimacaoDireta = [...semGsapDireto, ...semMotionDireto];
 
 export default tseslint.config(
@@ -149,7 +164,10 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: semAnimacaoDireta, patterns: [semCaminhoInternoDeModulo] },
+        {
+          paths: semAnimacaoDireta,
+          patterns: [semCaminhoInternoDeModulo, semParticulasDiretas],
+        },
       ],
     },
   },
@@ -166,7 +184,7 @@ export default tseslint.config(
         'error',
         {
           paths: semAnimacaoDireta,
-          patterns: [semCaminhoInternoDeModulo, semImportarData],
+          patterns: [semCaminhoInternoDeModulo, semImportarData, semParticulasDiretas],
         },
       ],
     },
@@ -179,7 +197,10 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { paths: semAnimacaoDireta, patterns: [semCaminhoInternoDeModulo] },
+        {
+          paths: semAnimacaoDireta,
+          patterns: [semCaminhoInternoDeModulo, semParticulasDiretas],
+        },
       ],
     },
   },
@@ -195,6 +216,8 @@ export default tseslint.config(
       // O pacote de recursos é parte do bootstrap da Motion: ele existe
       // justamente para ser o alvo do import() dinâmico (ADR-0029).
       'src/shared/animation/motionFeatures.ts',
+      'src/shared/animation/particulas.ts',
+      'src/shared/animation/particulasFeatures.ts',
     ],
     rules: {
       'no-restricted-imports': 'off',
