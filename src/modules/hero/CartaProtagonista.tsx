@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Profile, Retrato } from '@/data/types';
 import { CloudImage, Panel, StarRating } from '@/shared/ui';
 import { motion, useReducedMotion } from '@/shared/animation/motion';
@@ -48,6 +48,17 @@ export function CartaProtagonista({ perfil, retratos }: CartaProtagonistaProps) 
    */
   const [anuncio, setAnuncio] = useState('');
 
+  /**
+   * Guarda contra avançar a carta sem ninguém ter clicado.
+   *
+   * `initial={false}` já deveria impedir qualquer animação na montagem, e
+   * portanto qualquer `onAnimationComplete` — mas confiar nisso significa
+   * que, se a lib decidir disparar o callback uma vez ao montar, a
+   * primeira virada pula a primeira carta. O sintoma seria "a carta que
+   * nunca aparece", e não há erro para ajudar a achar.
+   */
+  const jaVirou = useRef(false);
+
   const semMovimento = useReducedMotion();
   const carta = retratos[indice];
 
@@ -73,13 +84,28 @@ export function CartaProtagonista({ perfil, retratos }: CartaProtagonistaProps) 
     const relogio = window.setTimeout(() => {
       setVirada(false);
       setAnuncio(copy.hero.anunciarRetrato);
-      // Avança com a face já escondida: trocar a imagem no clique deixaria
-      // ver a carta mudar ANTES de girar.
-      setIndice((atual) => proximoIndice(atual, retratos.length));
     }, TEMPO_VIRADA_MS);
 
     return () => window.clearTimeout(relogio);
-  }, [virada, retratos.length]);
+  }, [virada]);
+
+  /**
+   * A próxima carta entra quando o giro de volta TERMINA — não quando ele
+   * começa.
+   *
+   * Trocar junto com o `setVirada(false)` parece equivalente e não é: no
+   * início da volta a face de trás ainda está de frente para quem olha, e
+   * só some ao cruzar os 90°. A troca ali aparecia na tela — a arte
+   * seguinte girando para fora, no finalzinho da animação.
+   *
+   * `onAnimationComplete` em vez de um segundo `setTimeout` casado com a
+   * duração: dois relógios que precisam concordar sempre acabam
+   * discordando quando alguém muda a duração e esquece o outro.
+   */
+  function aoTerminarOGiro() {
+    if (virada || !jaVirou.current) return;
+    setIndice((atual) => proximoIndice(atual, retratos.length));
+  }
 
   // Sem foto ou sem carta nenhuma em `data/`, o hero fica com o texto que
   // já tinha — nada de moldura vazia ocupando a primeira dobra.
@@ -88,6 +114,7 @@ export function CartaProtagonista({ perfil, retratos }: CartaProtagonistaProps) 
   function virar() {
     if (virada || !carta) return;
 
+    jaVirou.current = true;
     setVirada(true);
     setAnuncio(
       copy.hero.anunciarCarta
@@ -127,6 +154,7 @@ export function CartaProtagonista({ perfil, retratos }: CartaProtagonistaProps) 
           initial={false}
           animate={{ rotateY: virada ? 0 : -MEIA_VOLTA }}
           transition={transicao}
+          onAnimationComplete={aoTerminarOGiro}
           // `backface-visibility` esconde o pixel, não a árvore de
           // acessibilidade: sem isto, o leitor de tela leria as duas faces
           // ao mesmo tempo, a escondida inclusive.
