@@ -10,9 +10,10 @@ export const perfil: Profile = {
   title: 'Desenvolvedor Full Stack',
   bio: 'Construo produtos web do banco de dados ate a ultima microinteracao. Gosto de sistemas que explicam a si mesmos e de interfaces que dao vontade de clicar mais uma vez.',
   location: 'Brasil',
-  // A frente do retrato do hero (ADR-0030). Subir a imagem com este
-  // publicId no Cloudinary é o bastante — sem ela, entra o placeholder.
-  avatar: 'portfolio/perfil/avatar',
+  // A frente do retrato do hero (ADR-0030): a foto real, para onde a
+  // carta sempre volta. Na raiz do Cloudinary, pelo motivo registrado em
+  // `retratos.ts`.
+  avatar: 'foto_nova',
   resumeUrl: '/curriculo.pdf',
   social: {
     github: 'https://github.com/gabrielpereirabrito',
