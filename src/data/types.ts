@@ -101,7 +101,15 @@ export interface Profile {
    * (ADR-0030). É para ela que a carta sempre volta.
    */
   avatar?: string;
-  /** PDF em public/, com nome estável. */
+  /** PDF em `public/` (na RAIZ, não em `src/`), com nome estável. */
   resumeUrl: string;
+  /**
+   * Com que nome o currículo chega na máquina de quem baixa.
+   *
+   * Sem isto o arquivo herda o nome do caminho, e cai na pasta de
+   * Downloads como mais um PDF sem dono. Quem baixa um currículo
+   * costuma estar comparando vários.
+   */
+  resumeFileName?: string;
   social: { github: string; linkedin: string; email: string };
 }

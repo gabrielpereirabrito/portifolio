@@ -85,7 +85,7 @@ export function Sobre({ perfil, atributos, trajetoria }: SobreProps) {
 
           <a
             href={perfil.resumeUrl}
-            download
+            download={perfil.resumeFileName ?? true}
             className="self-start border border-hud px-5 py-3 font-mono text-sm text-accent"
           >
             {copy.sobre.curriculo} ↓

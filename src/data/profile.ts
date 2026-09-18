@@ -14,7 +14,8 @@ export const perfil: Profile = {
   // carta sempre volta. Na raiz do Cloudinary, pelo motivo registrado em
   // `retratos.ts`.
   avatar: 'foto_nova',
-  resumeUrl: '/curriculo.pdf',
+  resumeUrl: '/cv-gabrielbrito-fullstack.pdf',
+  resumeFileName: 'Gabriel Brito - Desenvolvedor Full Stack.pdf',
   social: {
     github: 'https://github.com/gabrielpereirabrito',
     linkedin: 'https://www.linkedin.com/in/gabrielpereirabrito/',
