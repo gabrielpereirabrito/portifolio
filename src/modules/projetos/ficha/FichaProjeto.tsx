@@ -7,8 +7,9 @@ import {
   MOVIMENTO_OK,
   MOVIMENTO_REDUZIDO,
 } from '@/shared/animation/gsap';
-import { StarRating, TechIcon, CloudImage, Glitch } from '@/shared/ui';
+import { Glitch } from '@/shared/ui';
 import { acharPorSlug } from '../ordenar';
+import { ConteudoFicha } from '../components/ConteudoFicha';
 import type { Project } from '@/data/types';
 import { copy } from '@/i18n';
 
@@ -18,6 +19,12 @@ import { copy } from '@/i18n';
  * É aqui que a transição "hackeamento" da seção 4.4 faz sentido narrativo:
  * entrar no detalhe de um projeto é o momento em que "carregar dados
  * corrompidos" combina, em vez de ser um efeito aplicado a esmo.
+ *
+ * O CORPO da ficha não mora aqui: ele é o `ConteudoFicha`, o mesmo que o card
+ * da home abre no lugar (ADR-0032). O que esta rota acrescenta é a moldura —
+ * o `<h1>` com glitch, a saída para a home e a recomposição escalonada. É por
+ * isso que o conteúdo dos dois lugares não pode sair de sincronia: ele existe
+ * uma vez só.
  */
 interface FichaProjetoProps {
   projetos: Project[];
@@ -54,9 +61,6 @@ export function FichaProjeto({ projetos }: FichaProjetoProps) {
   // Slug inexistente cai na 404 temática, nunca em tela branca (ADR-0026).
   if (!projeto) return <Navigate to="/404" replace />;
 
-  const { name, difficulty, stats, description, longDescription, cover, links, year } =
-    projeto;
-
   return (
     <main ref={container} className="mx-auto max-w-3xl px-6 py-20 sm:px-10">
       <Link
@@ -68,70 +72,17 @@ export function FichaProjeto({ projetos }: FichaProjetoProps) {
       </Link>
 
       <h1 data-bloco className="font-display text-titulo text-primary">
-        <Glitch texto={name} />
+        <Glitch texto={projeto.name} />
       </h1>
 
-      <div data-bloco className="mt-4 flex flex-wrap items-center gap-4">
-        <StarRating nivel={difficulty} rotulo={copy.projetos.dificuldade} />
-        {year && <span className="font-mono text-xs text-muted">{year}</span>}
+      {/* Um `data-bloco` só para o corpo inteiro: o escalonamento fino de
+          imagem, stats e texto era feito quando eles eram irmãos aqui. Agora
+          eles são de outro componente, e alcançá-los por seletor daqui seria
+          o acoplamento que o ADR-0009 evita. A recomposição continua: título,
+          volta e corpo entram em sequência. */}
+      <div data-bloco className="mt-8">
+        <ConteudoFicha projeto={projeto} />
       </div>
-
-      {cover && (
-        <div data-bloco className="mt-8">
-          <CloudImage
-            publicId={cover}
-            alt={`Captura de tela do projeto ${name}`}
-            proporcao="16/9"
-            sizes="(max-width: 768px) 100vw, 768px"
-          />
-        </div>
-      )}
-
-      <section data-bloco className="mt-10">
-        <h2 className="font-mono text-xs tracking-[0.3em] text-muted uppercase">
-          {copy.projetos.stats}
-        </h2>
-        <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-3 font-mono text-sm text-primary">
-          {stats.map((stat) => (
-            <li key={stat.label} className="flex items-center gap-2">
-              <TechIcon id={stat.icon} className="text-accent" />
-              {stat.label}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <div
-        data-bloco
-        className="mt-10 flex flex-col gap-4 text-lg leading-[var(--leading-corpo)] text-muted"
-      >
-        <p>{longDescription ?? description}</p>
-      </div>
-
-      {(links.demo ?? links.repo) && (
-        <nav data-bloco className="mt-10 flex flex-wrap gap-6 font-mono text-sm">
-          {links.demo && (
-            <a
-              href={links.demo}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-accent underline underline-offset-4"
-            >
-              {copy.projetos.verDemo} ↗
-            </a>
-          )}
-          {links.repo && (
-            <a
-              href={links.repo}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-accent underline underline-offset-4"
-            >
-              {copy.projetos.verRepo} ↗
-            </a>
-          )}
-        </nav>
-      )}
     </main>
   );
 }

@@ -5,6 +5,7 @@ import {
   cloudinaryConfigurado,
   LARGURAS,
 } from '@/shared/lib/cloudinary';
+import { copy } from '@/i18n';
 
 /**
  * Imagem hospedada no Cloudinary — ADR-0014 + ADR-0026.
@@ -16,11 +17,16 @@ import {
  *    ScrollTriggers, que mediram o documento antes (ADR-0012, item 3).
  *
  * 2. O PLACEHOLDER OCUPA O MESMO ESPAÇO. Se o Cloudinary estiver fora do
- *    ar ou o publicId estiver errado, cair para um vazio de altura zero
- *    causa o mesmo deslocamento que o item 1 tentou evitar.
+ *    ar, o publicId estiver errado, OU NEM EXISTIR (projeto sem capa,
+ *    ADR-0033), cair para um vazio de altura zero causa o mesmo
+ *    deslocamento que o item 1 tentou evitar — por isso `publicId` é
+ *    opcional e os dois casos caem no mesmo ramo visual. Só o texto do
+ *    `aria-label` distingue "sem capa" (nunca houve) de "indisponível"
+ *    (falhou ao carregar) — são coisas diferentes para quem usa leitor de
+ *    tela.
  */
 interface CloudImageProps {
-  publicId: string;
+  publicId?: string;
   alt: string;
   proporcao?: `${number}/${number}`;
   /** A imagem do hero é o LCP: sem lazy e com prioridade alta. */
@@ -39,19 +45,18 @@ export function CloudImage({
   className = '',
 }: CloudImageProps) {
   const [falhou, setFalhou] = useState(false);
-  const indisponivel = falhou || !cloudinaryConfigurado();
 
   return (
     <div
       className={`relative overflow-hidden bg-panel ${className}`}
       style={{ aspectRatio: proporcao }}
     >
-      {indisponivel ? (
+      {!publicId || falhou || !cloudinaryConfigurado() ? (
         // Placeholder temático: moldura com um símbolo de item ausente, no
         // vocabulário do site. Nunca o ícone quebrado do navegador.
         <div
           role="img"
-          aria-label={`${alt} (imagem indisponível)`}
+          aria-label={`${alt} (${!publicId ? copy.imagem.semCapa : copy.imagem.indisponivel})`}
           className="flex h-full w-full items-center justify-center border border-hud"
         >
           <span aria-hidden="true" className="font-mono text-2xl text-hud">

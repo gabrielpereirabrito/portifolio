@@ -1,40 +1,64 @@
-import { Link } from 'react-router-dom';
-import { Panel, StarRating, TechIcon, CloudImage } from '@/shared/ui';
+import { useEffect, useRef } from 'react';
+import { Panel, CloudImage, StarRating, TechIcon } from '@/shared/ui';
 import type { Project } from '@/data/types';
 import { copy } from '@/i18n';
 
 /**
  * Ficha de personagem — o card de projeto do DECISOES-TECNICAS seção 3.
  *
- * O card inteiro é clicável, mas o link de verdade é só o título: assim o
- * leitor de tela anuncia um destino, não um bloco de texto inteiro como
- * link. O `::after` do título estende a área de clique sobre o painel
- * (ADR-0019).
+ * Desde a ADR-0033, o card NÃO CRESCE MAIS: ele só abre o `FichaModal`
+ * (montado uma vez em `ListaProjetos`). É por isso que ele voltou a usar
+ * `Panel` em vez de `motion.article` — sem `layout` para animar, não há
+ * motivo para ser um nó da Motion.
+ *
+ * O título continua sendo BOTÃO, não link: o `<Link>` para
+ * `/projetos/:slug` vive dentro do modal aberto, como "abrir em página
+ * própria" — um alvo de clique por vez no card (herdado da ADR-0032).
  */
 interface FichaCardProps {
   projeto: Project;
+  /** O modal deste projeto está aberto no momento — só destaque visual. */
+  aberto: boolean;
+  onAbrir: () => void;
 }
 
-export function FichaCard({ projeto }: FichaCardProps) {
-  const { slug, name, difficulty, stats, description, cover } = projeto;
+export function FichaCard({ projeto, aberto, onAbrir }: FichaCardProps) {
+  const { name, difficulty, stats, description, cover } = projeto;
+  const botao = useRef<HTMLButtonElement>(null);
+  const eraAberto = useRef(aberto);
+
+  // Devolve o foco ao próprio botão quando o modal deste card acabou de
+  // fechar — seja por Esc, clique no fundo ou no X, não só pelo botão
+  // daqui. Ninguém além do card sabe qual botão é "o dele".
+  useEffect(() => {
+    if (eraAberto.current && !aberto) botao.current?.focus();
+    eraAberto.current = aberto;
+  }, [aberto]);
 
   return (
-    <Panel as="article" className="group flex flex-col gap-4">
-      {cover && (
-        <CloudImage
-          publicId={cover}
-          alt={`Captura de tela do projeto ${name}`}
-          proporcao="16/9"
-        />
-      )}
+    <Panel
+      as="article"
+      variante={aberto ? 'aceso' : 'padrao'}
+      className="group flex flex-col gap-4"
+    >
+      <CloudImage
+        publicId={cover}
+        alt={`Captura de tela do projeto ${name}`}
+        proporcao="16/9"
+      />
 
       <h3 className="font-display text-secao text-primary">
-        <Link
-          to={`/projetos/${slug}`}
-          className="after:absolute after:inset-0 after:content-['']"
+        <button
+          ref={botao}
+          type="button"
+          onClick={onAbrir}
+          aria-haspopup="dialog"
+          aria-label={`${copy.projetos.verFicha}: ${name}`}
+          // O `::after` estende a área de clique sobre o painel inteiro.
+          className="text-left after:absolute after:inset-0 after:content-['']"
         >
           {name}
-        </Link>
+        </button>
       </h3>
 
       <StarRating nivel={difficulty} rotulo={copy.projetos.dificuldade} />

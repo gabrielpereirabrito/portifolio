@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   gsap,
   useGSAP,
@@ -7,17 +7,32 @@ import {
   MOVIMENTO_REDUZIDO,
 } from '@/shared/animation/gsap';
 import { FichaCard } from './components/FichaCard';
+import { FichaModal } from './components/FichaModal';
 import { ordenarProjetos } from './ordenar';
 import type { Project } from '@/data/types';
 import { copy } from '@/i18n';
 
+/**
+ * Listagem dos projetos — ADR-0033.
+ *
+ * O estado de "qual ficha está aberta" mora aqui e não em cada card,
+ * porque só um `FichaModal` é montado (não um por card) e ele precisa
+ * saber qual projeto mostrar.
+ *
+ * Diferente da ADR-0032 (substituída): o modal é `fixed`, não faz o card
+ * crescer nem empurra os vizinhos, então não há mais disputa de
+ * `transform` entre GSAP e Motion a documentar aqui — o `ScrollTrigger` de
+ * entrada em `[data-ficha]` é a única animação deste componente.
+ */
 interface ListaProjetosProps {
   projetos: Project[];
 }
 
 export function ListaProjetos({ projetos }: ListaProjetosProps) {
   const container = useRef<HTMLElement>(null);
+  const [slugAberto, setSlugAberto] = useState<string | null>(null);
   const ordenados = ordenarProjetos(projetos);
+  const projetoAberto = ordenados.find((projeto) => projeto.slug === slugAberto) ?? null;
 
   useGSAP(
     () => {
@@ -51,10 +66,16 @@ export function ListaProjetos({ projetos }: ListaProjetosProps) {
       <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {ordenados.map((projeto) => (
           <li key={projeto.id} data-ficha>
-            <FichaCard projeto={projeto} />
+            <FichaCard
+              projeto={projeto}
+              aberto={projeto.slug === slugAberto}
+              onAbrir={() => setSlugAberto(projeto.slug)}
+            />
           </li>
         ))}
       </ul>
+
+      <FichaModal projeto={projetoAberto} onFechar={() => setSlugAberto(null)} />
     </section>
   );
 }
