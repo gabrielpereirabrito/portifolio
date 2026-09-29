@@ -29,16 +29,54 @@ export const copy = {
     anunciarCarta: 'Carta virada: {classe}, nivel {nivel} de 5.',
     anunciarRetrato: 'De volta a foto.',
   },
+  /**
+   * Projetos — ADR-0033.
+   *
+   * A ficha abre em um MODAL flutuante ao clicar no card, e continua tendo
+   * rota própria. `verFicha` é o rótulo do botão que abre o modal;
+   * `fecharFicha` é o do botão de fechar dentro dele — não são mais os dois
+   * lados do mesmo botão (isso era o acordeão da ADR-0032, substituída).
+   * `paginaPropria` continua sendo o link para `/projetos/:slug`, que vive
+   * dentro do corpo da ficha.
+   *
+   * As mensagens do carrossel usam `{placeholder}` em vez de concatenacao no
+   * meio do codigo — `posicao` e lida em voz alta a cada troca de slide, e a
+   * frase inteira precisa caber numa linha para ser reescrita de uma vez.
+   */
   projetos: {
     titulo: 'Projetos',
     subtitulo: 'Cada trabalho como uma ficha de personagem',
     verFicha: 'abrir ficha',
+    fecharFicha: 'fechar ficha',
+    paginaPropria: 'abrir em página própria',
     verDemo: 'ver demo',
     verRepo: 'repositorio',
     dificuldade: 'Dificuldade',
     stats: 'Stats',
     voltar: 'voltar para a home',
-    semImagem: 'imagem indisponivel',
+
+    /** Rótulo do alvo que revela o papel da tecnologia no projeto. */
+    notaStat: 'o que {tecnologia} faz aqui',
+
+    carrossel: {
+      rotulo: 'capturas de tela',
+      anterior: 'imagem anterior',
+      proxima: 'próxima imagem',
+      posicao: 'imagem {atual} de {total}',
+      irPara: 'ir para a imagem {n}',
+    },
+  },
+  /**
+   * Imagem — mora fora de `projetos` de propósito.
+   *
+   * Quem lê isto é o `CloudImage`, que é `shared/ui` e serve tambem o
+   * retrato do hero. Enquanto a chave morava em `projetos`, o componente
+   * preferia escrever a string na mao a importar de um bloco que nao era
+   * dele — e o resultado era um rotulo orfao no i18n.
+   */
+  imagem: {
+    indisponivel: 'imagem indisponível',
+    semCapa: 'projeto sem capa',
   },
   sobre: {
     titulo: 'Sobre',

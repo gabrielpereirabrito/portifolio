@@ -443,6 +443,77 @@
   }
 }
 
+/* ── Glitch com escopo de painel ─────────────────────────────────────
+   Vocabulário criado para a ficha de projeto abrindo/fechando no lugar —
+   ADR-0032 (substituída pela ADR-0033). SEM CONSUMIDOR ATIVO no momento:
+   a tentativa de portar este overlay para o `FichaModal` da ADR-0033 foi
+   revertida por não dar para confirmar visualmente, nesta sessão, que a
+   propagação de variantes da Motion deixa o overlay em opacidade 0 com o
+   modal parado — ver notas de implementação da ADR-0033. Fica aqui pronto
+   para religar quando isso puder ser testado.
+
+   UM VOCABULÁRIO, DUAS ESCALAS. Os @keyframes são LITERALMENTE os do bloco
+   4.4 acima (`blocos-ciano`, `blocos-magenta`, `estatica`): eles trabalham
+   com `inset: 0` e porcentagens de `background`, então servem qualquer
+   caixa — a viewport na transição entre seções, o painel do modal aqui. Não
+   há versão reduzida a manter em sincronia, e é isso que impede as duas de
+   divergirem.
+
+   Tela cheia foi descartado por dois motivos, nesta ordem: ela diria "mudei
+   de seção" para um gesto que é "abri um card"; e repetir a viewport inteira
+   a cada clique gastaria o orçamento do ADR-0019 num gesto muito mais
+   frequente que a navegação do rodapé.
+
+   A FRONTEIRA DO ADR-0029, nas duas metades: o churn dos blocos é CSS
+   contínuo e decorativo e fica aqui; quem liga e desliga é a OPACIDADE do
+   `.glitch-painel`, vinda da Motion com variantes invertidas — opaco nos
+   dois extremos da transição, transparente com o painel parado. É o que faz
+   o mesmo overlay servir a abertura e o fechamento sem um segundo estado de
+   "fechando" no React, que é o sinal de alerta que aquele ADR manda procurar.
+
+   A CONTA DE FOTOSSENSIBILIDADE, refeita como o ADR-0028 exige de qualquer
+   ajuste: a área é uma fração pequena da viewport (um card, contra a tela
+   inteira); a opacidade dos blocos fica entre 0,4 e 0,6 com blend `screen`
+   sobre fundo escuro, então CLAREIA em vez de ligar e desligar do zero; e o
+   overlay é visível por ~320ms (--duracao-media) por gesto, com um pico. Fica
+   abaixo do limite de 3 piscadas por segundo. MEXER NA DURAÇÃO DO PAINEL
+   REFAZ ESTA CONTA.                                                       */
+.glitch-painel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Não precisa de `clip-path`: o overlay é `inset: 0` do PAINEL, que já mora
+     dentro do padding do `.hud-panel` — nunca alcança os cantos cortados. */
+  /* O chiado de estática — o mesmo feTurbulence do 4.4, mesmo data-URI.
+     `overlay` sobre o fundo escuro do painel lê como interferência de
+     sinal; a opacidade é fixa porque grão fino não conta como piscada. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 90px 90px;
+  mix-blend-mode: overlay;
+  animation: estatica 80ms steps(1, end) infinite;
+}
+
+/* Os dois cachos de blocos, em ciclos sem razão inteira entre si (200ms e
+   170ms) para nunca caírem no mesmo recorte ao mesmo tempo. `infinite` é
+   barato: eles só são VISTOS enquanto a Motion mantém o pai opaco. */
+.glitch-painel::before,
+.glitch-painel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+}
+
+.glitch-painel::before {
+  animation: blocos-ciano 200ms steps(1, end) infinite;
+}
+
+.glitch-painel::after {
+  animation: blocos-magenta 170ms steps(1, end) infinite;
+}
+
 /* ── Fundo do hero ──────────────────────────────────────────────────
    O piso do efeito da seção 4.6 — ADR-0031.
 
@@ -497,5 +568,20 @@
   :root[data-rolando='true'] #root {
     animation: none;
     transform: none;
+  }
+
+  /* Cinto e suspensório: sem consumidor ativo hoje (ver bloco acima), mas
+     se o `.glitch-painel` for religado em algum componente que esqueça de
+     neutralizar a variante com movimento reduzido, o ruído não existe de
+     qualquer forma. `content: none` mata os dois cachos de blocos; o
+     chiado sai pelo `background-image`. */
+  .glitch-painel {
+    animation: none;
+    background-image: none;
+  }
+
+  .glitch-painel::before,
+  .glitch-painel::after {
+    content: none;
   }
 }

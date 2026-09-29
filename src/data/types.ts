@@ -25,6 +25,14 @@ export type Nivel = 1 | 2 | 3 | 4 | 5;
 export interface TechStat {
   label: string;
   icon: TechIconId;
+  /**
+   * O papel desta tecnologia NESTE projeto — não o que ela é (ADR-0032).
+   *
+   * "React" não precisa de definição; o que informa é o que ele resolveu
+   * aqui. Sem `nota`, o stat continua sendo só ícone e rótulo, e o revelar
+   * simplesmente não existe naquele item.
+   */
+  nota?: string;
 }
 
 export interface Project {
@@ -40,6 +48,13 @@ export interface Project {
   longDescription?: string;
   /** publicId do Cloudinary, sem extensão (ADR-0014). */
   cover?: string;
+  /**
+   * Capturas além da capa, na convenção `portfolio/projetos/<slug>/
+   * screenshot-01` (ADR-0014). O carrossel da ficha recebe
+   * `[cover, ...galeria]` — com a lista vazia ele não renderiza nada, e o
+   * card sem capa continua sendo card sem imagem (ADR-0032).
+   */
+  galeria?: string[];
   links: { demo?: string; repo?: string };
   year?: number;
   /** Sobe na ordenação da home. */
